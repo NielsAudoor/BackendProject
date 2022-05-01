@@ -10,14 +10,9 @@ builder.Services.AddTransient<IDPSRepository, DPSRepository>();
 builder.Services.AddTransient<IRaidService, RaidService>();
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
 
 
-// app.MapGet("/events", async () =>
-// {
-// });
-
-app.MapGet("/raids", async (IRaidService raidService) =>
+app.MapGet("/raid", async (IRaidService raidService) =>
 {
     try
     {
@@ -31,13 +26,13 @@ app.MapGet("/raids", async (IRaidService raidService) =>
     }
 });
 
-app.MapPost("/raids", async (IRaidService raidService, Raid raid) =>
+app.MapPost("/raid", async (IRaidService raidService, Raid raid) =>
 {
     try
     {
-        DPS founddps = await raidService.GetDPSByUsername(raid.dps);
-        Tank foundtank = await raidService.GetTankByUsername(raid.tank);
-        Healer foundhealer = await raidService.GetHealerByUsername(raid.healer);
+        DPS founddps = await raidService.GetDPS(raid.dps);
+        Tank foundtank = await raidService.GetTank(raid.tank);
+        Healer foundhealer = await raidService.GetHealer(raid.healer);
         raid.dps = founddps;
         raid.healer = foundhealer;
         raid.tank = foundtank;
@@ -75,6 +70,64 @@ app.MapPost("/dps", async (IRaidService raidService, DPS dps) =>
     catch (System.Exception)
     {
 
+        throw;
+    }
+});
+
+
+
+
+app.MapGet("/healer", async (IRaidService raidService) =>
+{
+    try
+    {
+        var result = await raidService.GetAllHealers();
+        return result;
+    }
+    catch (System.Exception)
+    {
+
+        throw;
+    }
+});
+
+app.MapPost("/healer", async (IRaidService raidService, Healer healer) =>
+{
+    try
+    {
+        var result = await raidService.AddHealer(healer);
+        return result;
+    }
+    catch (System.Exception)
+    {
+        throw;
+    }
+});
+
+
+app.MapGet("/Tank", async (IRaidService raidService) =>
+{
+    try
+    {
+        var result = await raidService.GetAllTanks();
+        return result;
+    }
+    catch (System.Exception)
+    {
+
+        throw;
+    }
+});
+
+app.MapPost("/Tank", async (IRaidService raidService, Tank tank) =>
+{
+    try
+    {
+        var result = await raidService.AddTank(tank);
+        return result;
+    }
+    catch (System.Exception)
+    {
         throw;
     }
 });

@@ -10,12 +10,15 @@ public interface IRaidService
     Task<List<DPS>> GetAllDPS();
     Task<List<Healer>> GetAllHealers();
     Task<List<Tank>> GetAllTanks();
+    Task<DPS> GetDPS(DPS dps);
     Task<List<DPS>> GetDPSByHigherILVL(DPS dps);
     Task<DPS> GetDPSByUsername(DPS dps);
+    Task<Healer> GetHealer(Healer healer);
     Task<List<Healer>> GetHealerByHigherILVL(Healer healer);
     Task<Healer> GetHealerByUsername(Healer healer);
     Task<Raid> GetRaid(Raid raid);
     Task<List<Raid>> GetRaids();
+    Task<Tank> GetTank(Tank tank);
     Task<List<Tank>> GetTankByHigherILVL(Tank tank);
     Task<Tank> GetTankByUsername(Tank tank);
 }
@@ -69,6 +72,8 @@ public class RaidService : IRaidService
 
     public async Task<DPS> GetDPSByUsername(DPS dps) => await _dpsRepository.GetDPSByUsername(dps);
     public async Task<List<DPS>> GetDPSByHigherILVL(DPS dps) => await _dpsRepository.GetDPSByHigherILVL(dps);
+    public async Task<DPS> GetDPS(DPS dps) => await _dpsRepository.GetDPS(dps);
+
 
 
     //Healer Repo
@@ -82,6 +87,8 @@ public class RaidService : IRaidService
 
     public async Task<Healer> GetHealerByUsername(Healer healer) => await _healerRepository.GetHealerByUsername(healer);
     public async Task<List<Healer>> GetHealerByHigherILVL(Healer healer) => await _healerRepository.GetHealerByHigherILVL(healer);
+    public async Task<Healer> GetHealer(Healer healer) => await _healerRepository.GetHealer(healer);
+
 
     //Tank Repo
     public async Task<Tank> AddTank(Tank newTank)
@@ -94,4 +101,5 @@ public class RaidService : IRaidService
 
     public async Task<Tank> GetTankByUsername(Tank tank) => await _tankRepository.GetTankByUsername(tank);
     public async Task<List<Tank>> GetTankByHigherILVL(Tank tank) => await _tankRepository.GetTankByHigherILVL(tank);
+    public async Task<Tank> GetTank(Tank tank) => await _tankRepository.GetTank(tank);
 }

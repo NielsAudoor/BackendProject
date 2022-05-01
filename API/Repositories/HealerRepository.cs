@@ -4,6 +4,7 @@ public interface IHealerRepository
 {
     Task<Healer> AddHealer(Healer newHealer);
     Task<List<Healer>> GetAllHealers();
+    Task<Healer> GetHealer(Healer healer);
     Task<List<Healer>> GetHealerByHigherILVL(Healer healer);
     Task<Healer> GetHealerByUsername(Healer healer);
 }
@@ -31,7 +32,11 @@ public class HealerRepository : IHealerRepository
         var result = await _context.healerCollection.Find<Healer>(_ => _.CharacterName.ToLower() == healer.CharacterName.ToLower()).FirstOrDefaultAsync();
         return result;
     }
-
+    public async Task<Healer> GetHealer(Healer healer)
+    {
+        var result = await _context.healerCollection.Find<Healer>(_ => _.HealerId == healer.HealerId).FirstOrDefaultAsync();
+        return result;
+    }
     public async Task<List<Healer>> GetHealerByHigherILVL(Healer healer)
     {
         var result = await _context.healerCollection.Find<Healer>(_ => _.ILevel >= healer.ILevel).ToListAsync();

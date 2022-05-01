@@ -1,8 +1,10 @@
 namespace raiding.API.repositories;
+
 public interface IDPSRepository
 {
     Task<DPS> AddDPS(DPS newDPS);
     Task<List<DPS>> GetAllDPS();
+    Task<DPS> GetDPS(DPS dps);
     Task<List<DPS>> GetDPSByHigherILVL(DPS dps);
     Task<DPS> GetDPSByUsername(DPS dps);
 }
@@ -28,6 +30,12 @@ public class DPSRepository : IDPSRepository
     public async Task<DPS> GetDPSByUsername(DPS dps)
     {
         var result = await _context.dpsCollection.Find<DPS>(_ => _.CharacterName.ToLower() == dps.CharacterName.ToLower()).FirstOrDefaultAsync();
+        return result;
+    }
+
+    public async Task<DPS> GetDPS(DPS dps)
+    {
+        var result = await _context.dpsCollection.Find<DPS>(_ => _.DPSId == dps.DPSId).FirstOrDefaultAsync();
         return result;
     }
 

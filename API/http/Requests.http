@@ -2,7 +2,47 @@ POST http://localhost:3000/dps HTTP/1.1
 Content-Type: application/json
 
 {
-    "CharacterName" : "Xiumu",
-    "ILevel" : 200,
-    "DamagePerSecond": 1000
+    "CharacterName" : "Xiumuuu",
+    "ILevel" : 240,
+    "DamagePerSecond": 100000
 }
+###
+POST http://localhost:3000/healer HTTP/1.1
+Content-Type: application/json
+
+{
+    "CharacterName" : "Matsumoto",
+    "ILevel" : 250,
+    "HealingPerSecond": 12000
+}
+###
+POST http://localhost:3000/tank HTTP/1.1
+Content-Type: application/json
+
+{
+    "CharacterName" : "Declan",
+    "ILevel" : 245,
+    "armour": 10000
+}
+
+###
+POST http://localhost:3000/raid HTTP/1.1
+Content-Type: application/json
+
+{
+    "Name" : "Sepulchur Of The First Ones Mythic",
+    "Description" : "Minimum ILVL 255 / 4 set required",
+    "armour": 10000,
+    "Healer": {
+        "HealerId": "626ebe44fe1dfe8b97e00d62"
+    },
+    "Tank":{
+        "TankId": "626ebe51fe1dfe8b97e00d64"
+    },
+    "dps": {
+        "DPSId": "626ebe32fe1dfe8b97e00d61"
+    }
+}
+###
+GET http://localhost:3000/dps HTTP/1.1
+Content-Type: application/json
