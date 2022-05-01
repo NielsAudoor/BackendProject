@@ -20,10 +20,13 @@ POST http://localhost:3000/tank HTTP/1.1
 Content-Type: application/json
 
 {
-    "CharacterName" : "Declan",
+    "CharacterName" : "Bartukk",
     "ILevel" : 245,
     "armour": 10000
 }
+###
+GET http://localhost:3000/Tank/626edd8cfb65edcc5da8a16d HTTP/1.1
+Content-Type: application/json
 
 ###
 POST http://localhost:3000/raid HTTP/1.1
@@ -43,6 +46,12 @@ Content-Type: application/json
         "DPSId": "626ebe32fe1dfe8b97e00d61"
     }
 }
+###
+DELETE http://localhost:3000/raid/626ec4757738c146aacda8b1 HTTP/1.1
+Content-Type: application/json
+###
+GET http://localhost:3000/raid/626edc4de266f3571dbf4f3e HTTP/1.1
+Content-Type: application/json
 ###
 GET http://localhost:3000/dps HTTP/1.1
 Content-Type: application/json

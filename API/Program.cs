@@ -37,7 +37,7 @@ app.MapPost("/raid", async (IRaidService raidService, Raid raid) =>
         raid.healer = foundhealer;
         raid.tank = foundtank;
         var result = await raidService.AddRaid(raid);
-        return result;
+        return Results.Created($"/raid/{result.RaidId}", result);
     }
     catch (System.Exception)
     {
@@ -65,11 +65,25 @@ app.MapPost("/dps", async (IRaidService raidService, DPS dps) =>
     try
     {
         var result = await raidService.AddDPS(dps);
-        return result;
+        return Results.Created($"/dps/{result.DPSId}", result);
     }
     catch (System.Exception)
     {
 
+        throw;
+    }
+});
+app.MapGet("/dps/{dpsId}", async (IRaidService raidService, string dpsId) =>
+{
+    try
+    {
+        DPS dps = new DPS();
+        dps.DPSId = dpsId;
+        var result = await raidService.GetDPS(dps);
+        return Results.Ok(result);
+    }
+    catch (System.Exception)
+    {
         throw;
     }
 });
@@ -96,7 +110,22 @@ app.MapPost("/healer", async (IRaidService raidService, Healer healer) =>
     try
     {
         var result = await raidService.AddHealer(healer);
-        return result;
+        return Results.Created($"/healer/{result.HealerId}", result);
+    }
+    catch (System.Exception)
+    {
+        throw;
+    }
+});
+
+app.MapGet("/healer/{healerId}", async (IRaidService raidService, string healerId) =>
+{
+    try
+    {
+        Healer healer = new Healer();
+        healer.HealerId = healerId;
+        var result = await raidService.GetHealer(healer);
+        return Results.Ok(result);
     }
     catch (System.Exception)
     {
@@ -105,7 +134,35 @@ app.MapPost("/healer", async (IRaidService raidService, Healer healer) =>
 });
 
 
-app.MapGet("/Tank", async (IRaidService raidService) =>
+app.MapDelete("/raid/{raidId}", async (IRaidService raidService, string raidId) =>
+{
+    try
+    {
+        await raidService.DeleteRaid(raidId);
+    }
+    catch (System.Exception)
+    {
+        throw;
+    }
+});
+
+app.MapGet("/raid/{raidId}", async (IRaidService raidService, string raidId) =>
+{
+    try
+    {
+        Raid raid = new Raid();
+        raid.RaidId = raidId;
+        var result = await raidService.GetRaid(raid);
+        return Results.Ok(result);
+    }
+    catch (System.Exception)
+    {
+        throw;
+    }
+});
+
+
+app.MapGet("/tank", async (IRaidService raidService) =>
 {
     try
     {
@@ -119,12 +176,26 @@ app.MapGet("/Tank", async (IRaidService raidService) =>
     }
 });
 
-app.MapPost("/Tank", async (IRaidService raidService, Tank tank) =>
+app.MapPost("/tank", async (IRaidService raidService, Tank tank) =>
 {
     try
     {
         var result = await raidService.AddTank(tank);
-        return result;
+        return Results.Created($"/tank/{result.TankId}", result);
+    }
+    catch (System.Exception)
+    {
+        throw;
+    }
+});
+app.MapGet("/tank/{tankId}", async (IRaidService raidService, string tankId) =>
+{
+    try
+    {
+        Tank tank = new Tank();
+        tank.TankId = tankId;
+        var result = await raidService.GetTank(tank);
+        return Results.Ok(result);
     }
     catch (System.Exception)
     {
