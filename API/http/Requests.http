@@ -2,8 +2,8 @@ POST http://localhost:3000/dps HTTP/1.1
 Content-Type: application/json
 
 {
-    "CharacterName" : "Xiumuuu",
-    "ILevel" : 240,
+    "CharacterName" : "Xiuuu",
+    "ILevel" : 250,
     "DamagePerSecond": 100000
 }
 ###
@@ -16,18 +16,26 @@ Content-Type: application/json
     "HealingPerSecond": 12000
 }
 ###
+GET http://localhost:3000/healer HTTP/1.1
+Content-Type: application/json
+###
 POST http://localhost:3000/tank HTTP/1.1
 Content-Type: application/json
 
 {
-    "CharacterName" : "Bartukk",
-    "ILevel" : 245,
-    "armour": 10000
+    "CharacterName" : "Bartuukk",
+    "ILevel" : 100,
+    "armour": 1
 }
 ###
 GET http://localhost:3000/Tank/626edd8cfb65edcc5da8a16d HTTP/1.1
 Content-Type: application/json
-
+###
+GET http://localhost:3000/healer/healing/10000 HTTP/1.1
+Content-Type: application/json
+###
+GET http://localhost:3000/tank/armour/100 HTTP/1.1
+Content-Type: application/json
 ###
 POST http://localhost:3000/raid HTTP/1.1
 Content-Type: application/json
@@ -35,7 +43,6 @@ Content-Type: application/json
 {
     "Name" : "Sepulchur Of The First Ones Mythic",
     "Description" : "Minimum ILVL 255 / 4 set required",
-    "armour": 10000,
     "Healer": {
         "HealerId": "626ebe44fe1dfe8b97e00d62"
     },
@@ -54,4 +61,7 @@ GET http://localhost:3000/raid/626edc4de266f3571dbf4f3e HTTP/1.1
 Content-Type: application/json
 ###
 GET http://localhost:3000/dps HTTP/1.1
+Content-Type: application/json
+###
+GET http://localhost:3000/dps/damage/1001 HTTP/1.1
 Content-Type: application/json

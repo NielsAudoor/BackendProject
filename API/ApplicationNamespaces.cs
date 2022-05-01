@@ -9,3 +9,10 @@ global using raiding.API.configuration;
 global using raiding.API.services;
 global using raiding.API.repositories;
 global using raiding.API.context;
+global using raiding.API.validators;
+global using raiding.API.GraphQL.Mutation;
+global using raiding.API.GraphQL.queries;
+
+global using FluentAssertions;
+global using FluentValidation;
+global using FluentValidation.AspNetCore;

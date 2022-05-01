@@ -8,9 +8,22 @@ builder.Services.AddTransient<ITankRepository, TankRepository>();
 builder.Services.AddTransient<IHealerRepository, HealerRepository>();
 builder.Services.AddTransient<IDPSRepository, DPSRepository>();
 builder.Services.AddTransient<IRaidService, RaidService>();
+
+builder.Services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<DPSValidator>());
+builder.Services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<HealerValidator>());
+builder.Services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<RaidValidator>());
+builder.Services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<TankValidator>());
+
+
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType<Queries>()
+    .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
+    .AddMutationType<Mutation>();
+
 var app = builder.Build();
 
-
+app.MapGraphQL();
 
 app.MapGet("/raid", async (IRaidService raidService) =>
 {
@@ -36,6 +49,9 @@ app.MapPost("/raid", async (IRaidService raidService, Raid raid) =>
         raid.dps = founddps;
         raid.healer = foundhealer;
         raid.tank = foundtank;
+        var validation = new RaidValidator();
+        var valresult = validation.Validate(raid);
+        if (valresult.Errors.Count() > 0 && valresult != null) return Results.BadRequest(valresult.Errors);
         var result = await raidService.AddRaid(raid);
         return Results.Created($"/raid/{result.RaidId}", result);
     }
@@ -64,6 +80,9 @@ app.MapPost("/dps", async (IRaidService raidService, DPS dps) =>
 {
     try
     {
+        var validation = new DPSValidator();
+        var valresult = validation.Validate(dps);
+        if (valresult.Errors.Count() > 0 && valresult != null) return Results.BadRequest(valresult.Errors);
         var result = await raidService.AddDPS(dps);
         return Results.Created($"/dps/{result.DPSId}", result);
     }
@@ -88,6 +107,21 @@ app.MapGet("/dps/{dpsId}", async (IRaidService raidService, string dpsId) =>
     }
 });
 
+app.MapGet("/dps/damage/{amount}", async (IRaidService raidService, int amount) =>
+{
+    try
+    {
+        DPS dps = new DPS();
+        dps.DamagePerSecond = amount;
+        var result = await raidService.GetDPSByHighestDamage(dps);
+        return Results.Ok(result);
+    }
+    catch (System.Exception)
+    {
+        throw;
+    }
+});
+
 
 
 
@@ -96,7 +130,7 @@ app.MapGet("/healer", async (IRaidService raidService) =>
     try
     {
         var result = await raidService.GetAllHealers();
-        return result;
+        return Results.Ok(result);
     }
     catch (System.Exception)
     {
@@ -109,8 +143,26 @@ app.MapPost("/healer", async (IRaidService raidService, Healer healer) =>
 {
     try
     {
+        var validation = new HealerValidator();
+        var valresult = validation.Validate(healer);
+        if (valresult.Errors.Count() > 0 && valresult != null) return Results.BadRequest(valresult.Errors);
         var result = await raidService.AddHealer(healer);
         return Results.Created($"/healer/{result.HealerId}", result);
+    }
+    catch (System.Exception)
+    {
+        throw;
+    }
+});
+
+app.MapGet("/healer/healing/{amount}", async (IRaidService raidService, int amount) =>
+{
+    try
+    {
+        Healer healer = new Healer();
+        healer.HealingPerSecond = amount;
+        var result = await raidService.GetHealerByHealingAmount(healer);
+        return Results.Ok(result);
     }
     catch (System.Exception)
     {
@@ -180,6 +232,9 @@ app.MapPost("/tank", async (IRaidService raidService, Tank tank) =>
 {
     try
     {
+        var validation = new TankValidator();
+        var valresult = validation.Validate(tank);
+        if (valresult.Errors.Count() > 0 && valresult != null) return Results.BadRequest(valresult.Errors);
         var result = await raidService.AddTank(tank);
         return Results.Created($"/tank/{result.TankId}", result);
     }
@@ -188,6 +243,23 @@ app.MapPost("/tank", async (IRaidService raidService, Tank tank) =>
         throw;
     }
 });
+
+app.MapGet("/tank/armour/{amount}", async (IRaidService raidService, int amount) =>
+{
+    try
+    {
+        Tank tank = new Tank();
+        tank.armour = amount;
+        var result = await raidService.GetTankByHighestArmour(tank);
+        return Results.Ok(result);
+    }
+    catch (System.Exception)
+    {
+
+        throw;
+    }
+});
+
 app.MapGet("/tank/{tankId}", async (IRaidService raidService, string tankId) =>
 {
     try
@@ -205,3 +277,4 @@ app.MapGet("/tank/{tankId}", async (IRaidService raidService, string tankId) =>
 
 
 app.Run("http://0.0.0.0:3000");
+public partial class Program { }

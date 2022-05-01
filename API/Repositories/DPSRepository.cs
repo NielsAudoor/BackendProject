@@ -5,7 +5,7 @@ public interface IDPSRepository
     Task<DPS> AddDPS(DPS newDPS);
     Task<List<DPS>> GetAllDPS();
     Task<DPS> GetDPS(DPS dps);
-    Task<List<DPS>> GetDPSByHigherILVL(DPS dps);
+    Task<List<DPS>> GetDPSByHighestDamage(DPS dps);
     Task<DPS> GetDPSByUsername(DPS dps);
 }
 
@@ -39,9 +39,9 @@ public class DPSRepository : IDPSRepository
         return result;
     }
 
-    public async Task<List<DPS>> GetDPSByHigherILVL(DPS dps)
+    public async Task<List<DPS>> GetDPSByHighestDamage(DPS dps)
     {
-        var result = await _context.dpsCollection.Find<DPS>(_ => _.ILevel >= dps.ILevel).ToListAsync();
+        var result = await _context.dpsCollection.Find<DPS>(_ => _.DamagePerSecond >= dps.DamagePerSecond).ToListAsync();
         return result;
     }
 }

@@ -5,7 +5,7 @@ public interface ITankRepository
     Task<Tank> AddTank(Tank newTank);
     Task<List<Tank>> GetAllTanks();
     Task<Tank> GetTank(Tank tank);
-    Task<List<Tank>> GetTankByHigherILVL(Tank tank);
+    Task<List<Tank>> GetTankByHighestArmour(Tank tank);
     Task<Tank> GetTankByUsername(Tank tank);
 }
 
@@ -37,9 +37,9 @@ public class TankRepository : ITankRepository
         var result = await _context.tankCollection.Find<Tank>(_ => _.TankId == tank.TankId).FirstOrDefaultAsync();
         return result;
     }
-    public async Task<List<Tank>> GetTankByHigherILVL(Tank tank)
+    public async Task<List<Tank>> GetTankByHighestArmour(Tank tank)
     {
-        var result = await _context.tankCollection.Find<Tank>(_ => _.ILevel >= tank.ILevel).ToListAsync();
+        var result = await _context.tankCollection.Find<Tank>(_ => _.armour >= tank.armour).ToListAsync();
         return result;
     }
 }
