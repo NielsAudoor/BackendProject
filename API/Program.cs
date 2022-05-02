@@ -1,13 +1,20 @@
+using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 var mongoSettings = builder.Configuration.GetSection("MongoConnection");
 builder.Services.Configure<DatabaseSettings>(mongoSettings);
+var apiKeySettings = builder.Configuration.GetSection("AuthenticationSettings");
 
+builder.Services.Configure<ApiKeySettings>(apiKeySettings);
+
+
+builder.Services.AddMvc();
 builder.Services.AddTransient<IMongoContext, MongoContext>();
 builder.Services.AddTransient<IRaidRepository, RaidRepository>();
 builder.Services.AddTransient<ITankRepository, TankRepository>();
 builder.Services.AddTransient<IHealerRepository, HealerRepository>();
 builder.Services.AddTransient<IDPSRepository, DPSRepository>();
 builder.Services.AddTransient<IRaidService, RaidService>();
+builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
 
 builder.Services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<DPSValidator>());
 builder.Services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<HealerValidator>());
@@ -20,10 +27,44 @@ builder.Services
     .AddQueryType<Queries>()
     .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
     .AddMutationType<Mutation>();
+builder.Services.AddControllers();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(config =>
+  {
+      config.SwaggerDoc("v1", new OpenApiInfo() { Title = "Raid API", Version = "v1" });
+  });
+
+
+builder.Services.AddAuthorization(options =>
+{
+
+});
+
+builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["AuthenticationSettings:Issuer"],
+            ValidAudience = builder.Configuration["AuthenticationSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(builder.Configuration["AuthenticationSettings:SecretString"]))
+        };
+    }
+);
 
 var app = builder.Build();
-
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapGraphQL();
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Raid API");
+});
+
 
 app.MapGet("/raid", async (IRaidService raidService) =>
 {
@@ -39,7 +80,8 @@ app.MapGet("/raid", async (IRaidService raidService) =>
     }
 });
 
-app.MapPost("/raid", async (IRaidService raidService, Raid raid) =>
+
+app.MapPost("/raid", [Authorize] async (IRaidService raidService, Raid raid) =>
 {
     try
     {
@@ -276,5 +318,39 @@ app.MapGet("/tank/{tankId}", async (IRaidService raidService, string tankId) =>
 });
 
 
+app.MapPost("/authenticate", (IAuthenticationService authenticationService, IOptions<ApiKeySettings> authSettings, AuthenticationRequestBody authenticationRequestBody) =>
+{
+    var user = authenticationService.ValidateUser(authenticationRequestBody.username, authenticationRequestBody.password);
+    if (user == null)
+    {
+        return Results.Unauthorized();
+    }
+    String x = (authSettings.Value.SecretString!);
+    var test = System.Text.Encoding.ASCII.GetBytes(x);
+    var securityKey = new SymmetricSecurityKey(test);
+
+    var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+    var claimsForToken = new List<Claim>();
+    claimsForToken.Add(new Claim("sub", "1"));
+    claimsForToken.Add(new Claim("given_name", user.name));
+    claimsForToken.Add(new Claim("city", user.city));
+
+    var jwtSecurityToken = new JwtSecurityToken(
+        authSettings.Value.Issuer,
+        authSettings.Value.Audience,
+        claimsForToken,
+        DateTime.UtcNow,
+        DateTime.UtcNow.AddHours(1),
+        signingCredentials
+    );
+
+    var tokenToReturn = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+
+    return Results.Ok(tokenToReturn);
+});
+
+
 app.Run("http://0.0.0.0:3000");
-public partial class Program { }
+// app.Run();
+// public partial class Program { }
